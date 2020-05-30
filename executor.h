@@ -16,7 +16,7 @@ public:
     explicit Executor(int threadCount);
 
 public:
-    void submit(const Task& task);
+    void submit(const Task &task);
 
 private:
     void runThread();

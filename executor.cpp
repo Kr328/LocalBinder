@@ -3,13 +3,13 @@
 Executor::Executor(int threadCount) {
     this->closed = false;
 
-    for ( int i = 0 ; i < threadCount ; i++ ) {
+    for (int i = 0; i < threadCount; i++) {
         this->threads.emplace_back(&Executor::runThread, this);
     }
 }
 
 void Executor::runThread() {
-    while ( !closed ) {
+    while (!closed) {
         Task task;
 
         {
@@ -28,7 +28,7 @@ void Executor::runThread() {
     }
 }
 
-void Executor::submit(const Executor::Task& task) {
+void Executor::submit(const Executor::Task &task) {
     std::unique_lock<std::mutex> lock(mutex);
 
     pendingTasks.push_back(task);
