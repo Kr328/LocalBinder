@@ -6,6 +6,8 @@
 
 #include "buffer_pool.h"
 
+class Binder;
+
 class Parcel {
 public:
     Parcel();
@@ -16,10 +18,10 @@ public:
     void reset();
 
 public:
-    inline uint64_t getPosition() const {
+    [[nodiscard]] inline uint64_t getPosition() const {
         return position;
     }
-    inline uint64_t getSize() const {
+    [[nodiscard]] inline uint64_t getSize() const {
         return size;
     }
 
@@ -29,6 +31,7 @@ public:
     void writeChar(wchar_t value);
     void writeString(std::string const &str);
     void writeBoolean(bool value);
+    void writeBinder(const Binder *binder);
     void writeBytes(const void *bytes, uint64_t length);
 
 public:
@@ -37,6 +40,7 @@ public:
     wchar_t readChar();
     std::string readString();
     bool readBoolean();
+    Binder *readBinder();
     bool readBytes(void *bytes, uint64_t length);
 
 private:

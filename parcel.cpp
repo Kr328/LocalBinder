@@ -1,4 +1,5 @@
 #include "parcel.h"
+#include "binder.h"
 
 #include <cstring>
 #include <algorithm>
@@ -95,6 +96,14 @@ void Parcel::writeBoolean(bool value) {
     writeBytes(&value, sizeof(value));
 }
 
+void Parcel::writeBinder(const Binder *binder) {
+    auto id = binder->getId();
+    auto token = binder->getToken();
+
+    writeBytes(&id, sizeof(id));
+    writeBytes(&token, sizeof(token));
+}
+
 int32_t Parcel::readInt() {
     int32_t result = 0;
 
@@ -141,4 +150,14 @@ bool Parcel::readBoolean() {
     readBytes(&result, sizeof(result));
 
     return result;
+}
+
+Binder *Parcel::readBinder() {
+    unsigned long id;
+    uint64_t token;
+
+    readBytes(&id, sizeof(id));
+    readBytes(&token, sizeof(token));
+
+    return new BpBinder(id, token);
 }

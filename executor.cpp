@@ -8,6 +8,17 @@ Executor::Executor(int threadCount) {
     }
 }
 
+Executor::~Executor() {
+    std::unique_lock<std::mutex> lock(mutex);
+
+    this->closed = true;
+
+    notification.notify_all();
+
+    for (auto &t : threads)
+        t.join();
+}
+
 void Executor::runThread() {
     while (!closed) {
         Task task;

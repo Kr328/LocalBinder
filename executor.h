@@ -14,6 +14,7 @@ public:
 
 public:
     explicit Executor(int threadCount);
+    ~Executor();
 
 public:
     void submit(const Task &task);
