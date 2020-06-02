@@ -46,3 +46,5 @@ unsigned long BpBinder::getId() const {
 uint64_t BpBinder::getToken() const {
     return this->token;
 }
+
+std::random_device BnBinder::randomDevice;

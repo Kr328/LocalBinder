@@ -13,7 +13,7 @@ Parcel::Parcel() {
 
 void Parcel::resize(uint64_t capacity) {
     while (true) {
-        if (capacity > buffers.size() * pool->getBufferSize())
+        if (capacity < buffers.size() * pool->getBufferSize())
             return;
 
         buffers.push_back(pool->obtain());
@@ -45,7 +45,7 @@ void Parcel::writeBytes(const void *bytes, uint64_t length) {
         uint64_t offset = size % bufferSize;
         uint64_t copied = std::min(bufferSize - offset, length);
 
-        memcpy(buffers[fragment], bytes, copied);
+        memcpy(((uint8_t *)buffers[fragment]) + offset, bytes, copied);
 
         length -= copied;
         size += copied;
@@ -64,7 +64,7 @@ bool Parcel::readBytes(void *bytes, uint64_t length) {
         uint64_t offset = position % bufferSize;
         uint64_t copied = std::min(bufferSize - offset, length);
 
-        memcpy(bytes, buffers[fragment], copied);
+        memcpy(bytes, ((uint8_t *)buffers[fragment]) + offset, copied);
 
         length -= copied;
         position += copied;
@@ -161,3 +161,5 @@ Binder *Parcel::readBinder() {
 
     return new BpBinder(id, token);
 }
+
+BufferPool *Parcel::pool = new BufferPool(DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_COUNT);

@@ -6,6 +6,9 @@
 
 #include "buffer_pool.h"
 
+#define DEFAULT_BUFFER_SIZE 512
+#define DEFAULT_BUFFER_COUNT 2048
+
 class Binder;
 
 class Parcel {

@@ -1,28 +1,36 @@
 #include "binder_bus.h"
 
-#include <climits>
+#include <algorithm>
 
 void BinderBus::registerBinder(BnBinder *binder) {
     std::lock_guard<std::shared_mutex> lock(mutex);
 
-    auto existed = binders.find(binder->id);
+    if ( !available.empty() ) {
+        std::push_heap(available.begin(), available.end(), std::greater<>{});
 
-    if (existed != binders.end() && existed->second->token == binder->token)
-        return;
+        int id = available.back();
 
-    std::uniform_int_distribution<unsigned long> dist(0, ULONG_MAX);
+        available.pop_back();
 
-    unsigned long id = dist(randomDevice);
+        binder->id = id;
+        binders[id] = binder;
+    } else {
+        binder->id = current++;
 
-    binder->id = id;
-    binders[id] = binder;
+        binders.push_back(binder);
+    }
 }
 
 void BinderBus::unregisterBinder(BnBinder *binder) {
     std::lock_guard<std::shared_mutex> lock(mutex);
 
-    binder->id = 0;
-    binders.erase(binder->id);
+    binders[binder->id] = nullptr;
+
+    available.push_back(binder->id);
+
+    std::push_heap(available.begin(), available.end());
+
+    binder->id = -1;
 }
 
 bool BinderBus::transact(unsigned long id, uint64_t token, int code, Parcel *data, Parcel *reply) {
@@ -31,11 +39,9 @@ bool BinderBus::transact(unsigned long id, uint64_t token, int code, Parcel *dat
     {
         std::shared_lock<std::shared_mutex> lock(mutex);
 
-        auto iterator = binders.find(id);
-        if (iterator == binders.end() || iterator->second->token != token)
+        binder = binders[id];
+        if ( binder == nullptr || binder->getToken() != token )
             return false;
-
-        binder = iterator->second;
     }
 
     return binder->transact(code, data, reply);

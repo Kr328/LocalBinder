@@ -8,7 +8,7 @@ public:
     BufferPool(int singleSize, int cacheSize) noexcept;
 
 public:
-    inline uint64_t getBufferSize() const {
+    [[nodiscard]] inline uint64_t getBufferSize() const {
         return singleSize;
     }
 
