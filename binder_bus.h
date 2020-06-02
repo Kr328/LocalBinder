@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <random>
 #include <shared_mutex>
+#include <string>
 
 #include "binder.h"
 
@@ -16,6 +17,11 @@ public:
     bool transact(unsigned long id, uint64_t token, int code, Parcel *data, Parcel *reply);
 
 public:
+    void addService(std::string const &name, Binder *binder);
+    Binder *getService(std::string const &name);
+    void removeService(std::string const &name);
+
+public:
     static BinderBus *getInstance();
 
 private:
@@ -25,6 +31,7 @@ private:
 
 private:
     std::shared_mutex mutex;
+    std::unordered_map<std::string, BpBinder*> services;
     std::vector<BnBinder *> binders;
     std::vector<int> available;
     int current = 0;

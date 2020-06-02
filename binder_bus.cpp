@@ -47,6 +47,29 @@ bool BinderBus::transact(unsigned long id, uint64_t token, int code, Parcel *dat
     return binder->transact(code, data, reply);
 }
 
+void BinderBus::addService(const std::string &name, Binder *binder) {
+    this->removeService(name);
+
+    this->services[name] = new BpBinder(binder->getId(), binder->getToken());
+}
+
+Binder *BinderBus::getService(const std::string &name) {
+    auto binder = this->services[name];
+    if ( binder == nullptr )
+        return nullptr;
+
+    return new BpBinder(binder->getId(), binder->getId());
+}
+
+void BinderBus::removeService(const std::string &name) {
+    auto binder = this->services[name];
+
+    if ( binder != nullptr ) {
+        delete binder;
+        this->services.erase(name);
+    }
+}
+
 BinderBus *BinderBus::getInstance() {
     return instance;
 }
