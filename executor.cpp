@@ -45,3 +45,9 @@ void Executor::submit(const Executor::Task &task) {
     pendingTasks.push_back(task);
     notification.notify_one();
 }
+
+Executor *Executor::getInstance() {
+    return instance;
+}
+
+Executor *Executor::instance = new Executor(DEFAULT_THREAD_POOL_SIZE);

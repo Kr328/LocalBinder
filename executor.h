@@ -8,6 +8,8 @@
 #include <mutex>
 #include <condition_variable>
 
+#define DEFAULT_THREAD_POOL_SIZE 8
+
 class Executor {
 public:
     typedef std::function<void()> Task;
@@ -15,6 +17,9 @@ public:
 public:
     explicit Executor(int threadCount);
     ~Executor();
+
+public:
+    static Executor *getInstance();
 
 public:
     void submit(const Task &task);
@@ -28,4 +33,7 @@ private:
     std::condition_variable notification;
     std::list<Task> pendingTasks;
     std::vector<std::thread> threads;
+
+private:
+    static Executor *instance;
 };
